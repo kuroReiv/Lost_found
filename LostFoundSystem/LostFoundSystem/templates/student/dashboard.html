@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% from "_macros.html" import report_card %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Halo, {{ g.user.nama.split()[0] }}</h1><div class="text-muted">Ringkasan aktivitas Anda.</div></div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-primary" href="{{ url_for('student.buat_laporan', jenis='hilang') }}"><i class="bi bi-exclamation-circle"></i> Lapor hilang</a>
+    <a class="btn btn-primary" href="{{ url_for('student.buat_laporan', jenis='ditemukan') }}"><i class="bi bi-box-seam"></i> Lapor temuan</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="card stat-card dark"><div class="stat-icon"><i class="bi bi-journal-text"></i></div>
+    <div><div class="stat-num">{{ ringkasan.total }}</div><div class="stat-label">Laporan saya</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-search"></i></div>
+    <div><div class="stat-num">{{ ringkasan.hilang }}</div><div class="stat-label">Barang hilang</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+    <div><div class="stat-num">{{ ringkasan.ditemukan }}</div><div class="stat-label">Barang ditemukan</div></div></div></div>
+  <div class="col-6 col-lg-3"><a href="{{ url_for('student.klaim_saya') }}" class="text-decoration-none"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+    <div><div class="stat-num">{{ klaim.menunggu }}</div><div class="stat-label">Klaim menunggu</div></div></div></a></div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h5 mb-0">Laporan terbaru</h2>
+  <a href="{{ url_for('student.semua_laporan') }}" class="small">Lihat semua</a>
+</div>
+<div class="row g-3">
+  {% for r in terbaru %}{{ report_card(r, url_for('student.detail', report_id=r.report_id)) }}
+  {% else %}
+  <div class="col-12"><div class="card"><div class="empty-state"><i class="bi bi-inbox"></i><p class="mt-2 mb-0">Belum ada laporan. Jadilah yang pertama membuat laporan.</p></div></div></div>
+  {% endfor %}
+</div>
+{% endblock %}

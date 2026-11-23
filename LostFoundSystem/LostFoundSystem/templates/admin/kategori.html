@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Kategori{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Kelola Kategori</h1></div>
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card"><div class="card-body">
+      <h2 class="h5">Tambah kategori</h2>
+      <form method="post" action="{{ url_for('admin.kategori_tambah') }}">
+        {{ csrf() }}
+        <label for="nama_kategori" class="form-label">Nama kategori</label>
+        <input class="form-control mb-3" id="nama_kategori" name="nama_kategori" maxlength="100" required>
+        <button class="btn btn-primary"><i class="bi bi-plus-lg"></i> Tambah</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card">
+      {% if kategori %}
+      <div class="table-responsive"><table class="table mb-0">
+        <thead><tr><th>Nama kategori</th><th>Jumlah barang</th><th class="text-end">Aksi</th></tr></thead>
+        <tbody>{% for k in kategori %}
+          <tr>
+            <td>
+              <form method="post" action="{{ url_for('admin.kategori_edit', category_id=k.category_id) }}" class="d-flex gap-2">
+                {{ csrf() }}
+                <input class="form-control form-control-sm" name="nama_kategori" value="{{ k.nama_kategori }}" maxlength="100" aria-label="Nama kategori" required>
+                <button class="btn btn-sm btn-outline-primary" title="Simpan"><i class="bi bi-check-lg"></i></button>
+              </form>
+            </td>
+            <td>{{ k.jumlah_barang }}</td>
+            <td class="text-end">
+              <form method="post" action="{{ url_for('admin.kategori_hapus', category_id=k.category_id) }}" class="d-inline">{{ csrf() }}
+                <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus kategori ini?')"><i class="bi bi-trash"></i></button></form>
+            </td>
+          </tr>{% endfor %}</tbody></table></div>
+      {% else %}<div class="empty-state"><i class="bi bi-tags"></i><p class="mt-2 mb-0">Belum ada kategori. Tambahkan kategori pertama.</p></div>{% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

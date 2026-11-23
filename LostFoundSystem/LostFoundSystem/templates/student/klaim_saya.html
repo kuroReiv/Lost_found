@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import foto, badge_status %}
+{% block title %}Status Klaim{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Status Pengajuan Klaim</h1></div>
+<div class="card">
+  {% if klaim %}
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>Foto</th><th>Barang</th><th>Alasan klaim</th><th>Status klaim</th><th>Diverifikasi oleh</th></tr></thead>
+      <tbody>
+      {% for k in klaim %}
+        <tr>
+          <td>{{ foto(k, 'foto-thumb') }}</td>
+          <td><a href="{{ url_for('student.detail', report_id=k.report_id) }}" class="fw-semibold text-decoration-none">{{ k.nama_barang }}</a>
+              <div class="small text-muted">{{ k.lokasi }}</div></td>
+          <td style="max-width: 320px">{{ k.alasan_klaim|truncate(120) }}</td>
+          <td>{{ badge_status(k.status_klaim) }}
+            {% if k.status_klaim == 'disetujui' %}<div class="small text-muted mt-1">Hubungi admin untuk mengambil barang.</div>{% endif %}</td>
+          <td>{{ k.nama_admin or 'Belum diverifikasi' }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><i class="bi bi-patch-check"></i><p class="mt-2 mb-0">Belum ada klaim. Buka detail barang temuan untuk mengajukan klaim.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

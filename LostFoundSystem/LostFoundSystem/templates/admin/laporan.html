@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% from "_macros.html" import foto, badge_status, badge_jenis %}
+{% block title %}Laporan Barang{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Semua Laporan Barang</h1></div>
+<form method="get" class="card card-body mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-3"><label for="q" class="form-label">Nama barang</label><input class="form-control" id="q" name="q" value="{{ filters.q }}"></div>
+    <div class="col-md-3"><label for="kategori" class="form-label">Kategori</label>
+      <select class="form-select" id="kategori" name="kategori"><option value="">Semua</option>
+        {% for k in kategori %}<option value="{{ k.category_id }}" {{ 'selected' if filters.kategori == k.category_id }}>{{ k.nama_kategori }}</option>{% endfor %}</select></div>
+    <div class="col-md-2"><label for="jenis" class="form-label">Jenis</label>
+      <select class="form-select" id="jenis" name="jenis"><option value="">Semua</option>
+        <option value="hilang" {{ 'selected' if filters.jenis == 'hilang' }}>Hilang</option>
+        <option value="ditemukan" {{ 'selected' if filters.jenis == 'ditemukan' }}>Ditemukan</option></select></div>
+    <div class="col-md-2"><label for="status" class="form-label">Status</label>
+      <select class="form-select" id="status" name="status"><option value="">Semua</option>
+        {% for s in status_list %}<option value="{{ s }}" {{ 'selected' if filters.status == s }}>{{ s|capitalize }}</option>{% endfor %}</select></div>
+    <div class="col-md-2 d-flex gap-2"><button class="btn btn-primary flex-fill"><i class="bi bi-funnel"></i> Filter</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin.laporan') }}"><i class="bi bi-x-lg"></i></a></div>
+  </div>
+</form>
+<div class="card">
+  {% if laporan %}
+  <div class="table-responsive"><table class="table table-hover mb-0">
+    <thead><tr><th>Foto</th><th>Barang</th><th>Jenis</th><th>Pelapor</th><th>Lokasi</th><th>Tanggal</th><th>Status</th><th></th></tr></thead>
+    <tbody>{% for r in laporan %}
+      <tr><td>{{ foto(r, 'foto-thumb') }}</td>
+          <td class="fw-semibold">{{ r.nama_barang }}<div class="small text-muted fw-normal">{{ r.nama_kategori or '-' }}</div></td>
+          <td>{{ badge_jenis(r.jenis_laporan) }}</td><td>{{ r.nama_pelapor }}</td><td>{{ r.lokasi }}</td>
+          <td class="text-nowrap">{{ r.tanggal_kejadian|tgl }}</td><td>{{ badge_status(r.status) }}</td>
+          <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{{ url_for('admin.laporan_detail', report_id=r.report_id) }}">Kelola</a></td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty-state"><i class="bi bi-inbox"></i><p class="mt-2 mb-0">Tidak ada laporan yang cocok.</p></div>{% endif %}
+</div>
+{% endblock %}

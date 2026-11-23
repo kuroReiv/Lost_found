@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge_status, badge_jenis, claim_actions %}
+{% block title %}Dashboard Admin{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Dashboard Admin</h1><div class="text-muted">Statistik laporan dan klaim.</div></div></div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-4"><div class="card stat-card dark"><div class="stat-icon"><i class="bi bi-journal-text"></i></div>
+    <div><div class="stat-num">{{ stat.total }}</div><div class="stat-label">Total laporan</div></div></div></div>
+  <div class="col-6 col-lg-4"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-exclamation-circle"></i></div>
+    <div><div class="stat-num">{{ stat.hilang }}</div><div class="stat-label">Barang hilang</div></div></div></div>
+  <div class="col-6 col-lg-4"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+    <div><div class="stat-num">{{ stat.ditemukan }}</div><div class="stat-label">Barang ditemukan</div></div></div></div>
+  <div class="col-6 col-lg-4"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-patch-check"></i></div>
+    <div><div class="stat-num">{{ stat.diklaim }}</div><div class="stat-label">Barang diklaim</div></div></div></div>
+  <div class="col-6 col-lg-4"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-box-arrow-up-right"></i></div>
+    <div><div class="stat-num">{{ stat.dikembalikan }}</div><div class="stat-label">Sudah dikembalikan</div></div></div></div>
+  <div class="col-6 col-lg-4"><a href="{{ url_for('admin.klaim', status='menunggu') }}" class="text-decoration-none"><div class="card stat-card"><div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+    <div><div class="stat-num">{{ stat.klaim_menunggu }}</div><div class="stat-label">Klaim menunggu verifikasi</div></div></div></a></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-7">
+    <div class="card">
+      <div class="card-body pb-0 d-flex justify-content-between"><h2 class="h5">Klaim menunggu</h2><a class="small" href="{{ url_for('admin.klaim') }}">Semua klaim</a></div>
+      {% if klaim_terbaru %}
+      <div class="table-responsive"><table class="table mb-0">
+        <thead><tr><th>Barang</th><th>Pengklaim</th><th class="text-end">Aksi</th></tr></thead>
+        <tbody>{% for k in klaim_terbaru %}
+          <tr><td>{{ k.nama_barang }}</td><td>{{ k.nama_pengklaim }}</td>
+              <td class="text-end text-nowrap">{{ claim_actions(k, url_for('admin.dashboard')) }}</td></tr>
+        {% endfor %}</tbody></table></div>
+      {% else %}<div class="empty-state py-4"><i class="bi bi-check2-all"></i><p class="mb-0 mt-2">Tidak ada klaim yang menunggu.</p></div>{% endif %}
+    </div>
+  </div>
+  <div class="col-xl-5">
+    <div class="card">
+      <div class="card-body pb-0 d-flex justify-content-between"><h2 class="h5">Laporan terbaru</h2><a class="small" href="{{ url_for('admin.laporan') }}">Semua laporan</a></div>
+      <div class="list-group list-group-flush">
+        {% for r in laporan_terbaru %}
+        <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{{ url_for('admin.laporan_detail', report_id=r.report_id) }}">
+          <span>{{ r.nama_barang }}<small class="d-block text-muted">{{ r.nama_pelapor }}</small></span>{{ badge_jenis(r.jenis_laporan) }}
+        </a>
+        {% else %}<div class="empty-state py-4">Belum ada laporan.</div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

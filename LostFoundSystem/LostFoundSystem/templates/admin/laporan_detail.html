@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, foto, badge_status, badge_jenis, claim_actions %}
+{% block title %}{{ laporan.nama_barang }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Kelola Laporan</h1>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin.laporan') }}"><i class="bi bi-arrow-left"></i> Kembali</a></div>
+<div class="row g-4">
+  <div class="col-lg-5">{{ foto(laporan, 'foto-detail') }}</div>
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body p-4">
+      <div class="d-flex gap-2 mb-2">{{ badge_jenis(laporan.jenis_laporan) }}{{ badge_status(laporan.status) }}</div>
+      <h2 class="h4">{{ laporan.nama_barang }}</h2>
+      <div class="detail-row"><i class="bi bi-tag"></i><span>{{ laporan.nama_kategori or 'Tanpa kategori' }}</span></div>
+      <div class="detail-row"><i class="bi bi-geo-alt"></i><span>{{ laporan.lokasi }}</span></div>
+      <div class="detail-row"><i class="bi bi-calendar-event"></i><span>{{ laporan.tanggal_kejadian|tgl }}</span></div>
+      <div class="detail-row"><i class="bi bi-person"></i><span>Pelapor: {{ laporan.nama_pelapor }}</span></div>
+      <hr><p style="white-space: pre-line">{{ laporan.deskripsi }}</p>
+      <form method="post" action="{{ url_for('admin.ubah_status', report_id=laporan.report_id) }}" class="row g-2 align-items-end">
+        {{ csrf() }}
+        <div class="col-sm-6"><label for="status" class="form-label">Perbarui status barang</label>
+          <select class="form-select" id="status" name="status">
+            {% for s in status_list %}<option value="{{ s }}" {{ 'selected' if laporan.status == s }}>{{ s|capitalize }}</option>{% endfor %}
+          </select></div>
+        <div class="col-auto"><button class="btn btn-primary"><i class="bi bi-save"></i> Simpan status</button></div>
+      </form>
+    </div></div>
+  </div>
+</div>
+<h2 class="h5 mt-4">Klaim untuk laporan ini</h2>
+<div class="card">
+  {% if klaim %}
+  <div class="table-responsive"><table class="table mb-0">
+    <thead><tr><th>Pengklaim</th><th>Alasan</th><th>Status</th><th>Admin</th><th class="text-end">Aksi</th></tr></thead>
+    <tbody>{% for k in klaim %}
+      <tr><td>{{ k.nama_pengklaim }}<div class="small text-muted">{{ k.email_pengklaim }}</div></td>
+          <td style="max-width: 340px; white-space: pre-line">{{ k.alasan_klaim }}</td>
+          <td>{{ badge_status(k.status_klaim) }}</td><td>{{ k.nama_admin or '-' }}</td>
+          <td class="text-end text-nowrap">{{ claim_actions(k, url_for('admin.laporan_detail', report_id=laporan.report_id)) }}</td></tr>
+    {% endfor %}</tbody></table></div>
+  {% else %}<div class="empty-state py-4">Belum ada klaim.</div>{% endif %}
+</div>
+{% endblock %}

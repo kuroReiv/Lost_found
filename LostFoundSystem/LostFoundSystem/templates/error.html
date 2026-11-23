@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% macro isi() %}
+  <div class="empty-state">
+    <i class="bi bi-exclamation-triangle"></i>
+    <h1 class="h3 mt-3">{{ kode }} - {{ judul }}</h1>
+    <p>{{ pesan }}</p>
+    <a href="{{ url_for('auth.index') }}" class="btn btn-primary">Kembali ke beranda</a>
+  </div>
+{% endmacro %}
+{% block title %}{{ judul }}{% endblock %}
+{% block content %}{{ isi() }}{% endblock %}
+{% block auth %}<div class="container py-5">{{ isi() }}</div>{% endblock %}

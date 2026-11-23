@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, foto, badge_status, badge_jenis %}
+{% block title %}Riwayat Laporan{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Riwayat Laporan Saya</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-primary" href="{{ url_for('student.buat_laporan', jenis='hilang') }}"><i class="bi bi-plus-lg"></i> Hilang</a>
+    <a class="btn btn-primary" href="{{ url_for('student.buat_laporan', jenis='ditemukan') }}"><i class="bi bi-plus-lg"></i> Ditemukan</a>
+  </div>
+</div>
+<div class="card">
+  {% if laporan %}
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead><tr><th>Foto</th><th>Barang</th><th>Jenis</th><th>Lokasi</th><th>Tanggal</th><th>Status</th><th class="text-end">Aksi</th></tr></thead>
+      <tbody>
+      {% for r in laporan %}
+        <tr>
+          <td>{{ foto(r, 'foto-thumb') }}</td>
+          <td><a href="{{ url_for('student.detail', report_id=r.report_id) }}" class="fw-semibold text-decoration-none">{{ r.nama_barang }}</a>
+              <div class="small text-muted">{{ r.nama_kategori or '-' }}</div></td>
+          <td>{{ badge_jenis(r.jenis_laporan) }}</td>
+          <td>{{ r.lokasi }}</td>
+          <td class="text-nowrap">{{ r.tanggal_kejadian|tgl }}</td>
+          <td>{{ badge_status(r.status) }}</td>
+          <td class="text-end text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('student.detail', report_id=r.report_id) }}" title="Detail"><i class="bi bi-eye"></i></a>
+            {% if r.status == 'aktif' %}
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('student.edit', report_id=r.report_id) }}" title="Ubah"><i class="bi bi-pencil"></i></a>
+              <form method="post" action="{{ url_for('student.hapus', report_id=r.report_id) }}" class="d-inline">{{ csrf() }}
+                <button class="btn btn-sm btn-outline-danger" title="Hapus" onclick="return confirm('Hapus laporan ini?')"><i class="bi bi-trash"></i></button></form>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><i class="bi bi-inbox"></i><p class="mt-2 mb-0">Anda belum membuat laporan.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

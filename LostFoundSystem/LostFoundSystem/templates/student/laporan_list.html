@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import report_card %}
+{% block title %}Cari Barang{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Cari Barang</h1></div>
+<form method="get" class="card card-body mb-4">
+  <div class="row g-2 align-items-end">
+    <div class="col-md-4"><label for="q" class="form-label">Nama barang</label>
+      <input class="form-control" id="q" name="q" value="{{ filters.q }}" placeholder="mis. dompet, kunci, laptop"></div>
+    <div class="col-md-3"><label for="kategori" class="form-label">Kategori</label>
+      <select class="form-select" id="kategori" name="kategori">
+        <option value="">Semua kategori</option>
+        {% for k in kategori %}<option value="{{ k.category_id }}" {{ 'selected' if filters.kategori == k.category_id }}>{{ k.nama_kategori }}</option>{% endfor %}
+      </select></div>
+    <div class="col-md-3"><label for="jenis" class="form-label">Jenis laporan</label>
+      <select class="form-select" id="jenis" name="jenis">
+        <option value="">Semua jenis</option>
+        <option value="hilang" {{ 'selected' if filters.jenis == 'hilang' }}>Barang hilang</option>
+        <option value="ditemukan" {{ 'selected' if filters.jenis == 'ditemukan' }}>Barang ditemukan</option>
+      </select></div>
+    <div class="col-md-2 d-flex gap-2">
+      <button class="btn btn-primary flex-fill"><i class="bi bi-search"></i> Cari</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('student.semua_laporan') }}" title="Reset filter"><i class="bi bi-x-lg"></i></a>
+    </div>
+  </div>
+</form>
+<div class="row g-3">
+  {% for r in laporan %}{{ report_card(r, url_for('student.detail', report_id=r.report_id)) }}
+  {% else %}
+  <div class="col-12"><div class="card"><div class="empty-state"><i class="bi bi-search"></i><p class="mt-2 mb-0">Tidak ada barang yang cocok. Coba kata kunci atau filter lain.</p></div></div></div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, foto %}
+{% block title %}{{ item.get_judul() if mode == 'baru' else 'Ubah Laporan' }}{% endblock %}
+{% block content %}
+<div class="page-head"><h1>{{ item.get_judul() if mode == 'baru' else 'Ubah Laporan' }}</h1></div>
+<div class="card"><div class="card-body p-4">
+  <p class="text-muted">{{ item.get_petunjuk() }}</p>
+  <form method="post" enctype="multipart/form-data"
+        action="{{ url_for('student.buat_laporan', jenis=item.get_jenis()) if mode == 'baru' else url_for('student.edit', report_id=laporan.report_id) }}">
+    {{ csrf() }}
+    <div class="row g-3">
+      <div class="col-md-6"><label for="nama_barang" class="form-label">Nama barang</label>
+        <input class="form-control" id="nama_barang" name="nama_barang" maxlength="100" value="{{ data.get('nama_barang', '') }}" required></div>
+      <div class="col-md-6"><label for="category_id" class="form-label">Kategori</label>
+        <select class="form-select" id="category_id" name="category_id" required>
+          <option value="">Pilih kategori</option>
+          {% for k in kategori %}<option value="{{ k.category_id }}" {{ 'selected' if data.get('category_id')|string == k.category_id|string }}>{{ k.nama_kategori }}</option>{% endfor %}
+        </select>
+        {% if not kategori %}<div class="form-text text-danger">Belum ada kategori. Hubungi admin untuk menambahkannya.</div>{% endif %}
+      </div>
+      <div class="col-12"><label for="deskripsi" class="form-label">Deskripsi</label>
+        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="4" maxlength="1000" required>{{ data.get('deskripsi', '') }}</textarea>
+        <div class="form-text">Warna, merek, ukuran, atau ciri lain (10-1000 karakter).</div></div>
+      <div class="col-md-6"><label for="lokasi" class="form-label">{{ 'Lokasi terakhir terlihat' if item.get_jenis() == 'hilang' else 'Lokasi ditemukan' }}</label>
+        <input class="form-control" id="lokasi" name="lokasi" maxlength="150" value="{{ data.get('lokasi', '') }}" required></div>
+      <div class="col-md-6"><label for="tanggal" class="form-label">{{ 'Tanggal kehilangan' if item.get_jenis() == 'hilang' else 'Tanggal ditemukan' }}</label>
+        <input type="date" class="form-control" id="tanggal" name="tanggal_kejadian" max="{{ today() }}" value="{{ data.get('tanggal_kejadian', '') }}" required></div>
+      <div class="col-12"><label for="fotoInput" class="form-label">Foto barang (opsional)</label>
+        <input type="file" class="form-control" id="fotoInput" name="foto" accept=".jpg,.jpeg,.png,.webp">
+        <div class="form-text">JPG, PNG, atau WEBP. Maksimal 2 MB.{% if mode == 'edit' and laporan.foto %} Kosongkan jika tidak ingin mengganti foto.{% endif %}</div>
+        {% if mode == 'edit' and laporan.foto %}<div class="mt-2">{{ foto(laporan, 'foto-thumb') }}</div>{% endif %}
+        <img id="fotoPreview" class="d-none mt-2" alt="Pratinjau foto">
+      </div>
+    </div>
+    <div class="mt-4 d-flex gap-2">
+      <button class="btn btn-primary"><i class="bi bi-save"></i> {{ 'Kirim laporan' if mode == 'baru' else 'Simpan perubahan' }}</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('student.laporan_saya') if mode == 'baru' else url_for('student.detail', report_id=laporan.report_id) }}">Batal</a>
+    </div>
+  </form>
+</div></div>
+{% endblock %}

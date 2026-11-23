@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Pengguna{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Kelola Pengguna</h1></div>
+<div class="card"><div class="table-responsive"><table class="table table-hover mb-0">
+  <thead><tr><th>ID</th><th>Nama</th><th>Email</th><th>Laporan</th><th>Role</th><th class="text-end">Aksi</th></tr></thead>
+  <tbody>{% for u in pengguna %}
+    <tr>
+      <td>{{ u.user_id }}</td><td class="fw-semibold">{{ u.nama }}</td><td>{{ u.email }}</td><td>{{ u.jumlah_laporan }}</td>
+      <td>
+        {% if u.user_id == g.user.user_id %}<span class="badge text-bg-primary rounded-pill">Admin (Anda)</span>
+        {% else %}
+        <form method="post" action="{{ url_for('admin.pengguna_role', user_id=u.user_id) }}" class="d-flex gap-1">
+          {{ csrf() }}
+          <select class="form-select form-select-sm" name="role" aria-label="Role">
+            <option value="mahasiswa" {{ 'selected' if u.role == 'mahasiswa' }}>Mahasiswa</option>
+            <option value="admin" {{ 'selected' if u.role == 'admin' }}>Admin</option>
+          </select>
+          <button class="btn btn-sm btn-outline-primary" title="Simpan role"><i class="bi bi-check-lg"></i></button>
+        </form>{% endif %}
+      </td>
+      <td class="text-end">
+        {% if u.user_id != g.user.user_id %}
+        <form method="post" action="{{ url_for('admin.pengguna_hapus', user_id=u.user_id) }}" class="d-inline">{{ csrf() }}
+          <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Hapus pengguna ini?')"><i class="bi bi-trash"></i></button></form>
+        {% endif %}
+      </td>
+    </tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}

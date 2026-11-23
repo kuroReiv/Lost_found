@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf, foto, badge_status, badge_jenis %}
+{% block title %}{{ laporan.nama_barang }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <h1>Detail Barang</h1>
+  <a class="btn btn-outline-secondary" href="{{ url_for('student.semua_laporan') }}"><i class="bi bi-arrow-left"></i> Kembali</a>
+</div>
+<div class="row g-4">
+  <div class="col-lg-5">{{ foto(laporan, 'foto-detail') }}</div>
+  <div class="col-lg-7">
+    <div class="card"><div class="card-body p-4">
+      <div class="d-flex gap-2 mb-2">{{ badge_jenis(laporan.jenis_laporan) }}{{ badge_status(laporan.status) }}</div>
+      <h2 class="h4">{{ laporan.nama_barang }}</h2>
+      <div class="detail-row"><i class="bi bi-tag"></i><span>{{ laporan.nama_kategori or 'Tanpa kategori' }}</span></div>
+      <div class="detail-row"><i class="bi bi-geo-alt"></i><span>{{ laporan.lokasi }}</span></div>
+      <div class="detail-row"><i class="bi bi-calendar-event"></i><span>{{ laporan.tanggal_kejadian|tgl }}</span></div>
+      <div class="detail-row"><i class="bi bi-person"></i><span>Dilaporkan oleh {{ laporan.nama_pelapor }}</span></div>
+      <hr>
+      <p style="white-space: pre-line">{{ laporan.deskripsi }}</p>
+
+      {% if milik_sendiri %}
+        <div class="d-flex gap-2 flex-wrap">
+          {% if dapat_diubah %}
+            <a class="btn btn-primary" href="{{ url_for('student.edit', report_id=laporan.report_id) }}"><i class="bi bi-pencil-square"></i> Ubah</a>
+            <form method="post" action="{{ url_for('student.hapus', report_id=laporan.report_id) }}">{{ csrf() }}
+              <button class="btn btn-outline-danger" onclick="return confirm('Hapus laporan ini?')"><i class="bi bi-trash"></i> Hapus</button></form>
+          {% else %}
+            <div class="alert alert-secondary mb-0 w-100"><i class="bi bi-lock"></i> Laporan sudah diproses sehingga tidak dapat diubah atau dihapus.</div>
+          {% endif %}
+        </div>
+      {% endif %}
+    </div></div>
+
+    {% if bisa_klaim %}
+    <div class="card mt-3"><div class="card-body p-4">
+      <h3 class="h5"><i class="bi bi-patch-check"></i> Ajukan klaim</h3>
+      <p class="text-muted small">Jelaskan ciri barang yang hanya diketahui pemilik asli (isi, goresan, merek, dsb.).</p>
+      <form method="post" action="{{ url_for('student.ajukan_klaim', report_id=laporan.report_id) }}">
+        {{ csrf() }}
+        <label for="alasan_klaim" class="form-label">Alasan klaim</label>
+        <textarea class="form-control mb-3" id="alasan_klaim" name="alasan_klaim" rows="3" maxlength="1000" required></textarea>
+        <button class="btn btn-primary"><i class="bi bi-send"></i> Kirim klaim</button>
+      </form>
+    </div></div>
+    {% elif laporan.jenis_laporan == 'ditemukan' and not milik_sendiri and laporan.status == 'aktif' %}
+      <div class="alert alert-info mt-3 mb-0"><i class="bi bi-hourglass-split"></i> Klaim Anda untuk barang ini sedang menunggu verifikasi admin.</div>
+    {% endif %}
+
+    {% if klaim_saya %}
+    <div class="card mt-3"><div class="card-body">
+      <h3 class="h6">Riwayat klaim Anda untuk barang ini</h3>
+      {% for k in klaim_saya %}
+        <div class="d-flex justify-content-between border-top pt-2 mt-2 small">
+          <span>{{ k.alasan_klaim|truncate(90) }}</span>{{ badge_status(k.status_klaim) }}
+        </div>
+      {% endfor %}
+    </div></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

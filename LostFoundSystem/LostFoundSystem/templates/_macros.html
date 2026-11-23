@@ -1,0 +1,81 @@
+{# Potongan tampilan yang dipakai berulang #}
+
+{% macro csrf() %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endmacro %}
+
+{% macro flashes() %}
+  {% with pesan = get_flashed_messages(with_categories=true) %}
+    {% for kategori, isi in pesan %}
+      <div class="alert alert-{{ kategori }} alert-dismissible fade show" role="alert">
+        {{ isi }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Tutup"></button>
+      </div>
+    {% endfor %}
+  {% endwith %}
+{% endmacro %}
+
+{% macro nav_link(endpoint, icon, label, jenis=None) %}
+  {% set aktif = request.endpoint == endpoint and (jenis is none or (request.view_args or {}).get('jenis') == jenis) %}
+  <a class="side-link {{ 'active' if aktif }}"
+     href="{{ url_for(endpoint, jenis=jenis) if jenis else url_for(endpoint) }}">
+    <i class="bi bi-{{ icon }}"></i><span>{{ label }}</span>
+  </a>
+{% endmacro %}
+
+{% macro badge_status(status) %}
+  {% set warna = {'aktif':'success','diklaim':'warning text-dark','dikembalikan':'primary','ditutup':'secondary',
+                  'menunggu':'warning text-dark','disetujui':'success','ditolak':'danger','selesai':'primary'} %}
+  <span class="badge text-bg-{{ warna.get(status, 'secondary') }} rounded-pill">{{ status|capitalize }}</span>
+{% endmacro %}
+
+{% macro badge_jenis(jenis) %}
+  {% if jenis == 'hilang' %}
+    <span class="badge badge-hilang rounded-pill"><i class="bi bi-search"></i> Hilang</span>
+  {% else %}
+    <span class="badge badge-temu rounded-pill"><i class="bi bi-box-seam"></i> Ditemukan</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro foto(r, kelas='') %}
+  {% if r.foto %}
+    <img src="{{ url_for('static', filename='uploads/' ~ r.foto) }}" alt="Foto {{ r.nama_barang }}" class="{{ kelas }}">
+  {% else %}
+    <div class="foto-kosong {{ kelas }}"><i class="bi bi-image"></i></div>
+  {% endif %}
+{% endmacro %}
+
+{# Kartu barang. `link` = alamat halaman detail #}
+{% macro report_card(r, link) %}
+  <div class="col-sm-6 col-xl-4">
+    <div class="card item-card h-100">
+      <a href="{{ link }}" class="item-thumb">{{ foto(r, 'item-img') }}</a>
+      <div class="card-body d-flex flex-column">
+        <div class="d-flex justify-content-between align-items-start mb-2 gap-2">
+          {{ badge_jenis(r.jenis_laporan) }}{{ badge_status(r.status) }}
+        </div>
+        <h3 class="h6 mb-1"><a href="{{ link }}" class="stretched-link text-decoration-none text-navy">{{ r.nama_barang }}</a></h3>
+        <p class="small text-muted mb-1"><i class="bi bi-tag"></i> {{ r.nama_kategori or 'Tanpa kategori' }}</p>
+        <p class="small text-muted mb-1"><i class="bi bi-geo-alt"></i> {{ r.lokasi }}</p>
+        <p class="small text-muted mb-0 mt-auto"><i class="bi bi-calendar-event"></i> {{ r.tanggal_kejadian|tgl }}</p>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
+
+{# Tombol aksi klaim untuk admin, sesuai status klaim #}
+{% macro claim_actions(k, kembali) %}
+  {% if k.status_klaim == 'menunggu' %}
+    <form method="post" action="{{ url_for('admin.klaim_setujui', claim_id=k.claim_id) }}" class="d-inline">
+      {{ csrf() }}<input type="hidden" name="kembali" value="{{ kembali }}">
+      <button class="btn btn-sm btn-success" onclick="return confirm('Setujui klaim ini? Klaim lain untuk laporan yang sama akan ditolak.')"><i class="bi bi-check-lg"></i> Setujui</button>
+    </form>
+    <form method="post" action="{{ url_for('admin.klaim_tolak', claim_id=k.claim_id) }}" class="d-inline">
+      {{ csrf() }}<input type="hidden" name="kembali" value="{{ kembali }}">
+      <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Tolak klaim ini?')"><i class="bi bi-x-lg"></i> Tolak</button>
+    </form>
+  {% elif k.status_klaim == 'disetujui' %}
+    <form method="post" action="{{ url_for('admin.klaim_selesai', claim_id=k.claim_id) }}" class="d-inline">
+      {{ csrf() }}<input type="hidden" name="kembali" value="{{ kembali }}">
+      <button class="btn btn-sm btn-primary" onclick="return confirm('Tandai barang sudah diserahkan ke pengklaim?')"><i class="bi bi-box-arrow-up-right"></i> Tandai diserahkan</button>
+    </form>
+  {% else %}<span class="text-muted small">-</span>{% endif %}
+{% endmacro %}

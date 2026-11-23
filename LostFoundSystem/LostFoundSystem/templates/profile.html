@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf %}
+{% block title %}Profil{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Profil saya</h1></div>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card"><div class="card-body p-4">
+      <h2 class="h5 mb-3">Data akun</h2>
+      <form method="post" novalidate>
+        {{ csrf() }}<input type="hidden" name="aksi" value="profil">
+        <div class="mb-3"><label for="nama" class="form-label">Nama lengkap</label>
+          <input class="form-control" id="nama" name="nama" maxlength="100" value="{{ request.form.get('nama', g.user.nama) if request.form.get('aksi') == 'profil' else g.user.nama }}" required></div>
+        <div class="mb-3"><label for="email" class="form-label">Email</label>
+          <input type="email" class="form-control" id="email" name="email" maxlength="100" value="{{ request.form.get('email', g.user.email) if request.form.get('aksi') == 'profil' else g.user.email }}" required></div>
+        <div class="mb-3"><label class="form-label">Peran</label>
+          <input class="form-control" value="{{ g.user.get_role_label() }}" disabled></div>
+        <button class="btn btn-primary"><i class="bi bi-save"></i> Simpan perubahan</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card"><div class="card-body p-4">
+      <h2 class="h5 mb-3">Ganti password</h2>
+      <form method="post" novalidate>
+        {{ csrf() }}<input type="hidden" name="aksi" value="password">
+        <div class="mb-3"><label for="lama" class="form-label">Password lama</label>
+          <input type="password" class="form-control" id="lama" name="lama" required></div>
+        <div class="mb-3"><label for="baru" class="form-label">Password baru</label>
+          <input type="password" class="form-control" id="baru" name="baru" minlength="6" required></div>
+        <div class="mb-3"><label for="konf" class="form-label">Ulangi password baru</label>
+          <input type="password" class="form-control" id="konf" name="konfirmasi" required></div>
+        <button class="btn btn-outline-primary"><i class="bi bi-key"></i> Ganti password</button>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
